@@ -163,17 +163,18 @@ describe("codama", () => {
   // programs/fundraiser/src/instructions/contribute.rs, and compare with the
   // same account in initialize.rs.)
   it("TODO 3 · resolves every account the IDL lets it derive", async () => {
-    // const ix = await getContributeInstructionAsync({
-    //   contributor: createNoopSigner(address(provider.publicKey.toBase58())),
-    //   mintToRaise: address(mint.toBase58()),
-    //   // ... only what the type forces you to pass ...
-    //   amount: AMOUNT,
-    // });
-    // const got = ix.accounts.map((a) => a.address);
-    //
-    // assert.strictEqual(got[3], contributorAccount.toBase58(), "contributorAccount");
-    // assert.strictEqual(got[4], contributorAta.toBase58(), "contributorAta");
-    // assert.strictEqual(got[6], TOKEN_PROGRAM_ID.toBase58(), "tokenProgram");
+      const ix = await getContributeInstructionAsync({
+        contributor: createNoopSigner(address(provider.publicKey.toBase58())),
+        mintToRaise: address(mint.toBase58()),
+        fundraiser: address(fundraiser.toBase58()),
+        vault: address(vault.toBase58()),
+        amount: AMOUNT,
+     });
+     const got = ix.accounts.map((a) => a.address);
+    
+     assert.strictEqual(got[3], contributorAccount.toBase58(), "contributorAccount");
+     assert.strictEqual(got[4], contributorAta.toBase58(), "contributorAta");
+     assert.strictEqual(got[6], TOKEN_PROGRAM_ID.toBase58(), "tokenProgram");
     assert.fail("TODO 3: call getContributeInstructionAsync with the minimum input");
   });
 
@@ -186,8 +187,15 @@ describe("codama", () => {
   it.skip("BONUS · a Codama-built instruction goes through Anchor's provider", async () => {
     const before = BigInt((await provider.connection.getTokenAccountBalance(vault)).value.amount);
 
-    // const ix = await getContributeInstructionAsync({ ... });
-    // await provider.sendAndConfirm(new anchor.web3.Transaction().add(toWeb3Instruction(ix)));
+    const ix = await getContributeInstructionAsync({ 
+      contributor: createNoopSigner(address(provider.publicKey.toBase58())),
+      mintToRaise: address(mint.toBase58()),
+      fundraiser: address(fundraiser.toBase58()),
+      vault: address(vault.toBase58()),
+      amount: AMOUNT,
+    });
+    
+    await provider.sendAndConfirm(new anchor.web3.Transaction().add(toWeb3Instruction(ix)));
 
     const after = BigInt((await provider.connection.getTokenAccountBalance(vault)).value.amount);
     assert.strictEqual(after - before, BigInt(AMOUNT));
